@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Cricket Dashboard</title>
+
+    <style>
+        body{
+            font-family: Arial;
+            background:#f4f4f4;
+            padding:20px;
+        }
+
+        .card{
+    background:white;
+    padding:20px;
+    margin:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+    </style>
+</head>
+<body>
+
+<h1>🏏 Live Cricket Dashboard</h1>
+
+
+<div id="matches"></div>
+
+<script>
+async function loadMatches() {
+  try {
+    const url =
+      "https://s1mo29iaig.execute-api.ap-south-1.amazonaws.com/default/live-cricket-api";
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    console.log("API Response:", data);
+
+    let html = "";
+
+    if (!data.data || data.data.length === 0) {
+      document.getElementById("matches").innerHTML =
+        "<h3>No matches found</h3>";
+      return;
+    }
+
+   data.data.forEach(match => {
+
+  let scoreText = "Score not available";
+
+  if (match.score && match.score.length > 0) {
+    scoreText = match.score
+      .map(
+        s => `${s.inning}: ${s.r}/${s.w} (${s.o} overs)`
+      )
+      .join("<br>");
+  }
+
+  html += `
+    <div class="card">
+      <h2>${match.name}</h2>
+      <p><b>Status:</b> ${match.status}</p>
+      <p><b>Match Type:</b> ${match.matchType}</p>
+      <p><b>Venue:</b> ${match.venue}</p>
+      <p><b>Score:</b><br>${scoreText}</p>
+    </div>
+  `;
+});
+
+    document.getElementById("matches").innerHTML = html;
+  } catch (err) {
+    console.error(err);
+    document.getElementById("matches").innerHTML =
+      "<h3>Error loading matches. Check console (F12).</h3>";
+  }
+}
+
+loadMatches();
+</script>
+
+</body>
+</html>
